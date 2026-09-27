@@ -6,6 +6,8 @@
 Group your apps into channels - Game, Chat, Media and more - each with its own
 volume, mute and output device, all from one window.</p>
 
+<p align="center"><img src="docs/images/mixer-dark.png" alt="The Lanes mixer: six channel strips - Master, Game, Chat, Media, Aux and Mic - each with a fader, level meter, mute button, output device and its apps, under a Game/Chat mix slider and a profile picker"></p>
+
 ---
 
 Game and voice chat in your headset while a video plays through the speakers,
@@ -33,6 +35,23 @@ because Lanes never touches the audio itself.
 - **A local API** on `127.0.0.1` that anything can use - the mixer window does,
   and so does the [Stream Deck plugin](https://github.com/MAYBE-33/lanes-streamdeck).
 - **Restore.** One button puts Windows audio back exactly as it was before Lanes.
+
+## A closer look
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/mixer-light.png" alt="The mixer in the light theme"></td>
+<td width="22%"><img src="docs/images/quick-mixer.png" alt="The quick mixer: every channel's fader and mute in a small panel"></td>
+<td width="28%"><img src="docs/images/stacked.png" alt="The mixer in a narrow window, with each channel as a row and the faders horizontal"></td>
+</tr>
+<tr>
+<td><b>Light or dark</b>, following Windows unless you choose. Every channel shows its level, its device and its apps; the amber <b>1</b> on the left is an app playing outside any channel.</td>
+<td><b>The quick mixer</b>, from a click on the tray icon: every fader and mute, nothing else.</td>
+<td><b>Any window size.</b> Narrow or portrait windows turn the channels into rows, and the whole mixer scales to fit rather than scroll.</td>
+</tr>
+</table>
+
+<sub>Screenshots show example channels, apps and devices.</sub>
 
 ## How it works, and what it deliberately does not do
 
