@@ -1,0 +1,147 @@
+<Window x:Class="Lanes.Ui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="clr-namespace:Lanes.Ui.Controls"
+        Title="Lanes"
+        Icon="icon.ico"
+        Background="{StaticResource Ground}"
+        Width="1320" Height="800"
+        MinWidth="360" MinHeight="320"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        FontFamily="{StaticResource UiFont}"
+        TextOptions.TextFormattingMode="Ideal">
+
+    <!--
+        Width and Height are device-independent units, not pixels. WPF resolves
+        them against whichever display the window lands on and rescales the whole
+        visual tree on a DPI change.
+
+        MinWidth is 360 because the stacked layout exists for narrow windows,
+        and a minimum that made a layout unreachable would be a bug hiding a
+        feature. There is no minimum beyond physical legibility, and 360 is
+        about where a channel row stops being readable.
+    -->
+
+    <!--
+        Two rows, not three. The audio override sits in the header band beside
+        the Game/Chat mix rather than in a row of its own, which would cost
+        every strip below it height and put the one control that acts on all
+        channels as far from them as it could be.
+
+        The margin is set per layout in code. Twenty pixels of border is right
+        for a desktop window and is a fifth of the width of a portrait one.
+    -->
+    <Grid x:Name="Root" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- routing warning, when it applies -->
+            <RowDefinition Height="*"/>      <!-- header band, pool, strips -->
+        </Grid.RowDefinitions>
+
+        <!-- Routing unavailable is stated plainly, never failed silently. So is
+             being paused after a Restore, with the way out beside it. -->
+        <StackPanel Grid.Row="0">
+        <Border x:Name="PausedBanner"
+                Visibility="Collapsed"
+                Background="{StaticResource WarnGround}"
+                CornerRadius="9"
+                Padding="14,7,7,7"
+                Margin="0,0,0,16">
+            <DockPanel LastChildFill="True">
+                <Button x:Name="ResumeButton"
+                        DockPanel.Dock="Right"
+                        Style="{StaticResource QuietButton}"
+                        Padding="14,5"
+                        Content="Resume Lanes"/>
+                <TextBlock Foreground="{StaticResource Warn}"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"
+                           Text="Lanes is paused. Windows audio was put back as it was before Lanes, and your channels are not being applied."/>
+            </DockPanel>
+        </Border>
+        <Border x:Name="RoutingWarning"
+                Visibility="Collapsed"
+                Background="{StaticResource WarnGround}"
+                CornerRadius="9"
+                Padding="14,9"
+                Margin="0,0,0,16">
+            <TextBlock Foreground="{StaticResource Warn}"
+                       TextWrapping="Wrap"
+                       Text="Per-app device routing is unavailable on this Windows build. Volume and mute still work."/>
+        </Border>
+        </StackPanel>
+
+        <!--
+            Everything below here shrinks together rather than scrolling when
+            the window is too short for it - see FitWindow. It wraps the whole
+            mixer, band included, because the band is part of the height budget:
+            scaling only the strips would leave the header at full size and take
+            the difference out of the channels, which are the thing worth
+            seeing.
+
+            It is a no-op whenever the content fits, which in the wide layouts
+            is always.
+        -->
+        <ctl:FitWindow x:Name="Fit" Grid.Row="1" MinimumScale="0.7">
+            <!--
+                Two rows and two columns rather than a pool column beside a
+                nested grid. The nesting put the pool beside BOTH the mix
+                control and the strips, so the collapsed rail - which is a card,
+                like a strip - ran taller than every strip beside it and lined
+                up with nothing.
+
+                Flat, the rail shares the strips' row and their top and bottom
+                edges, and the mix control still sits above only the columns it
+                governs.
+            -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="PoolColumn" Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>   <!-- chat mix, over Game and Chat -->
+                    <RowDefinition Height="*"/>      <!-- pool rail and the strips -->
+                </Grid.RowDefinitions>
+
+                <!-- The header band: connection status on the left, the
+                     Game/Chat mix over the two channels it governs, and the
+                     audio override on the right. In the wide layout its columns
+                     match the strips' exactly, so everything in it lines up
+                     with the column it belongs to. -->
+                <Grid x:Name="HeaderRow" Grid.Row="0" Grid.Column="1" Margin="16,0,0,0"/>
+
+                <!-- "To be routed". Collapsed to a rail by default: nothing in
+                     this window opens itself, but an unrouted app is playing at
+                     full volume outside the user's control, so the rail carries
+                     a count that turns amber whenever something is waiting. -->
+                <ContentControl x:Name="PoolHost" Grid.Row="1" Grid.Column="0"/>
+
+                <!--
+                    The scroller is the last resort, not the plan. FitWindow
+                    scales the mixer down to fit a short window and only gives
+                    up at its floor, so in practice this bar appears when the
+                    window is smaller than anything legible - which is the point
+                    at which scrolling is better than shrinking further.
+
+                    Its scrollbar is DISABLED rather than left on Auto in the
+                    two non-stacked layouts: a scroller that could appear
+                    changes the available width by its own thickness, which is
+                    enough to push a layout back across a breakpoint and start
+                    it oscillating. The hysteresis is what stops jitter from a
+                    hand; this is what stops the window from jittering against
+                    itself.
+                -->
+                <ScrollViewer x:Name="StripsScroll"
+                              Grid.Row="1" Grid.Column="1"
+                              Margin="16,0,0,0"
+                              VerticalScrollBarVisibility="Disabled"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="0,0,0,0">
+                    <Grid x:Name="StripsGrid"/>
+                </ScrollViewer>
+            </Grid>
+        </ctl:FitWindow>
+    </Grid>
+</Window>

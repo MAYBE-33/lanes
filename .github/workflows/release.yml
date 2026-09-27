@@ -1,0 +1,94 @@
+# Build a release from a version tag and publish it.
+#
+#     git tag v1.0.0 && git push origin v1.0.0
+#
+# Everything published is built here, from the tagged source, so anyone can see
+# exactly what went into a download. That is also what code signing through
+# SignPath Foundation requires - see docs/code-signing.md.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        run: rustup show
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check the tag matches the version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}".TrimStart('v')
+          $cargo = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
+          $iss = (Select-String -Path installer/Lanes.iss -Pattern '#define AppVersion\s+"(.+)"').Matches[0].Groups[1].Value
+          if ($tag -ne $cargo -or $tag -ne $iss) {
+            throw "Tag $tag does not match Cargo.toml ($cargo) and installer/Lanes.iss ($iss)"
+          }
+
+      - name: Tests
+        run: cargo test --release --locked
+
+      - name: Build Lanes.exe and Lanes.Window.exe
+        shell: pwsh
+        run: ./tools/build-release.ps1
+
+      # Code signing goes here, once SignPath Foundation has accepted the
+      # project: upload dist\Lanes.exe and dist\Lanes.Window.exe as an artifact,
+      # submit a signing request with signpath/github-action-submit-signing-request,
+      # and download the signed files back into dist\ before the installer is
+      # built, so the installer carries signed binaries. The installer is then
+      # submitted the same way. See docs/code-signing.md.
+
+      - name: Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe") -and
+              -not (Test-Path "$env:ProgramFiles\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --no-progress -y
+          }
+
+      - name: Build the installer
+        shell: pwsh
+        run: ./tools/build-installer.ps1 -SkipBuild
+
+      - name: Package and hash
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart('v')
+          New-Item -ItemType Directory -Force out | Out-Null
+          Copy-Item "dist/installer/Lanes-$v-setup.exe" out/
+          Compress-Archive -Path dist/Lanes.exe, dist/Lanes.Window.exe, LICENSE, THIRD-PARTY-NOTICES.md `
+            -DestinationPath "out/Lanes-$v-portable.zip"
+          Get-ChildItem out | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
+          } | Set-Content out/SHA256SUMS.txt -Encoding ascii
+          Get-Content out/SHA256SUMS.txt
+
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Notes come from docs/releases/<tag>.md when there is one.
+          $tag = "${{ github.ref_name }}"
+          $files = (Get-ChildItem out).FullName
+          $ghArgs = @($tag) + $files + @('--title', "Lanes $tag")
+          if (Test-Path "docs/releases/$tag.md") {
+            $ghArgs += @('--notes-file', "docs/releases/$tag.md")
+          } else {
+            $ghArgs += '--generate-notes'
+          }
+          gh release create @ghArgs
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }

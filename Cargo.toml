@@ -1,0 +1,27 @@
+# The Rust half of Lanes. The mixer window is a separate .NET project in
+# /ui-wpf/, built by tools/build-release.ps1; it is not part of this workspace.
+[workspace]
+resolver = "2"
+members = ["winaudio", "core"]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.98"
+license = "GPL-3.0-or-later"
+
+[workspace.dependencies]
+# Pinned exactly, not caret-matched.
+#
+# The undocumented IAudioPolicyConfigFactory and IPolicyConfig interop is bound
+# by hand against raw vtables (winaudio/src/policy.rs, default_device.rs). A
+# silent minor bump in this crate is exactly the kind of hidden variable that
+# makes a routing failure ambiguous: "Windows changed" and "our binding is
+# wrong" look identical from outside. Upgrade deliberately, and check per-app
+# routing and the default-device switch by ear when you do.
+windows = "=0.62.2"
+# Needed as a DIRECT dependency wherever #[implement] is used: the macro
+# expands to code that names ::windows_core at the crate root.
+windows-core = "=0.62.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

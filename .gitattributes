@@ -1,0 +1,36 @@
+# Normalise line endings: LF in the repository, native in the working copy.
+# Without this, a Windows checkout commits CRLF and every diff is noisy.
+* text=auto
+
+# Sources
+*.rs      text diff=rust
+*.cs      text diff=csharp
+*.xaml    text
+*.csproj  text
+*.toml    text
+*.json    text
+*.md      text
+*.yml     text
+*.yaml    text
+*.iss     text
+*.ps1     text
+
+# Windows-native files that must keep CRLF
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+
+# Binary — never touch, never try to diff
+*.png     binary
+*.ico     binary
+*.exe     binary
+*.wav     binary
+*.docx    binary
+
+# Raw pixels for the tray icon: 32x32 RGBA, no header, no framing.
+#
+# Explicit rather than left to `text=auto`. Git's auto-detection looks for a NUL
+# byte and would almost certainly get this right - the transparent pixels are
+# full of them - but "almost certainly" is the wrong standard for a file whose
+# only property is that its bytes are exactly correct. One CRLF translation
+# turns the tray icon into noise, silently, on somebody else's checkout.
+*.rgba    binary

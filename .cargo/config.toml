@@ -1,0 +1,21 @@
+# Build settings for this workspace. Committed deliberately — see below.
+
+[target.x86_64-pc-windows-msvc]
+rustflags = [
+    # Link the C runtime statically.
+    #
+    # Without this the core imports `vcruntime140.dll`, which comes from the
+    # Visual C++ redistributable. That is present on most developer machines
+    # and on a great many ordinary ones, which is exactly what makes it a
+    # dangerous dependency: it works everywhere it is tested and fails on a
+    # clean install with an error naming a DLL the user has never heard of.
+    #
+    # The app is meant to be a file you download and run. That promise is only
+    # true if it carries everything it needs, so it does. The cost is about
+    # 200 KB, measured, against an executable that is under 2 MB.
+    #
+    # The Universal CRT (`api-ms-win-crt-*.dll`) is still imported and is not a
+    # dependency worth removing: it is part of Windows itself from Windows 10
+    # onward, which is the floor this app targets anyway.
+    "-C", "target-feature=+crt-static",
+]

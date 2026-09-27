@@ -1,0 +1,45 @@
+# --- Rust build output ---
+/target/
+**/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo.lock IS committed deliberately: this repo produces a binary, not a
+# library, so a pinned dependency graph is what makes builds reproducible.
+
+# --- .NET build output (the window, in /ui-wpf) ---
+**/bin/
+**/obj/
+
+# --- Release output, reproducible from tools/build-release.ps1 ---
+/dist/
+*.exe
+*.dll
+*.msi
+
+# --- Lanes runtime state ---
+# This lives in %LOCALAPPDATA%\Lanes\ (or beside a portable copy) and never
+# belongs in the repository. Listed anyway as belt and braces: config.json
+# holds the local API's shared token, and snapshots and logs describe a
+# machine and the applications on it.
+config.json
+/port
+port.txt
+portable.txt
+test-apps.txt
+/Lanes/
+snapshots/
+logs/
+*.log
+
+# --- Editors and tooling ---
+.vs/
+.vscode/
+.idea/
+*.swp
+.claude/
+
+# --- Windows ---
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

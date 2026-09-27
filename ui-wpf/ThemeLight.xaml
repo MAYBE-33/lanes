@@ -1,0 +1,73 @@
+<!--
+    The light palette. Merged AFTER Theme.xaml when the light theme is on, so
+    every key here wins over its dark twin and everything else - the type
+    scale, the styles, the font - comes from Theme.xaml unchanged.
+
+    It must define every colour Theme.xaml does. A key missing here is not an
+    error: it silently falls through to the dark value, which is how a light
+    window ends up with one near-black card in it. See Themes.cs.
+
+    The same rules as the dark palette, turned over rather than inverted:
+
+    - A card is a whisper LIGHTER than the ground, as it is a whisper lighter
+      in the dark theme. Lighter reads as "nearer" in both.
+    - The fader cap is lit from above, so it is the brightest thing in its
+      column here - white over a grey track - where in the dark theme it is a
+      dark grip. Either way it reads as an object sitting on the track.
+    - Accents keep their hues and lose a little lightness. The dark palette's
+      accents sit at the lightness that reads on near-black, and on near-white
+      the same values wash out; the Chat blue in particular all but vanished.
+    - Warning amber is darker for the same reason: the dark theme's #E0A84E on
+      a pale ground is about 2:1, which is decoration, not a warning.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <Color x:Key="GroundColor">#FFF1F1F4</Color>
+    <SolidColorBrush x:Key="Ground" Color="#FFF1F1F4"/>
+    <SolidColorBrush x:Key="Raised" Color="#FFE8E8ED"/>
+    <SolidColorBrush x:Key="Line" Color="#FFDFDFE5"/>
+    <SolidColorBrush x:Key="LineStrong" Color="#FFD6D6DD"/>
+    <SolidColorBrush x:Key="Track" Color="#FFE1E1E7"/>
+
+    <SolidColorBrush x:Key="Card" Color="#FFF9F9FB"/>
+    <SolidColorBrush x:Key="Hover" Color="#FFE6E6EC"/>
+
+    <SolidColorBrush x:Key="Chip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ChipLine" Color="#FFD6D6DE"/>
+    <SolidColorBrush x:Key="ChipLineHot" Color="#FFBBBBC6"/>
+
+    <SolidColorBrush x:Key="DetentIdle" Color="#FFD2D2DA"/>
+
+    <Color x:Key="CapTopColor">#FFFFFFFF</Color>
+    <Color x:Key="CapBottomColor">#FFE7E7EC</Color>
+    <Color x:Key="CapTopMutedColor">#FFF3F3F5</Color>
+    <Color x:Key="CapBottomMutedColor">#FFE3E3E8</Color>
+    <SolidColorBrush x:Key="CapEdge" Color="#FFB2B2BD"/>
+
+    <SolidColorBrush x:Key="Text" Color="#FF1C1C21"/>
+    <SolidColorBrush x:Key="TextDim" Color="#FF5C5C65"/>
+    <SolidColorBrush x:Key="TextFaint" Color="#FF72727B"/>
+    <SolidColorBrush x:Key="TextGhost" Color="#FF93939C"/>
+
+    <SolidColorBrush x:Key="Warn" Color="#FFA9690F"/>
+    <SolidColorBrush x:Key="WarnGround" Color="#FFFBF0DB"/>
+    <SolidColorBrush x:Key="MutedGrey" Color="#FFBDBDC6"/>
+    <SolidColorBrush x:Key="DotIdle" Color="#FFAEAEB7"/>
+
+    <SolidColorBrush x:Key="PopupGround" Color="#FFFFFFFF"/>
+
+    <!-- A shadow that is right under a popup on near-black is a smudge on
+         near-white. -->
+    <sys:Double x:Key="ShadowOpacity">0.2</sys:Double>
+
+    <SolidColorBrush x:Key="Accent.master" Color="#FF858994"/>
+    <SolidColorBrush x:Key="Accent.game"   Color="#FFCB6443"/>
+    <SolidColorBrush x:Key="Accent.chat"   Color="#FF4A8AB0"/>
+    <SolidColorBrush x:Key="Accent.media"  Color="#FF5E994B"/>
+    <SolidColorBrush x:Key="Accent.aux"    Color="#FF9A7093"/>
+    <SolidColorBrush x:Key="Accent.mic"    Color="#FFBC8730"/>
+    <SolidColorBrush x:Key="AccentFallback" Color="#FF3A978A"/>
+
+</ResourceDictionary>
