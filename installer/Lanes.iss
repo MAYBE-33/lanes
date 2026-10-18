@@ -44,7 +44,7 @@
 ; it, and a different one silently stops matching.
 #define AppUserId      "MAYBE-33.Lanes"
 
-#define AppVersion     "1.0.0"
+#define AppVersion     "1.0.1"
 #define AppPublisher   "MAYBE-33"
 #define AppUrl         "https://github.com/MAYBE-33/lanes"
 

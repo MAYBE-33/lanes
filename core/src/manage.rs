@@ -184,6 +184,64 @@ impl Config {
     /// it goes": stop ignoring it and it goes straight back to its channel.
     /// Nor is its audio moved back - the same principle as `--unassign` (D1 in
     /// the known issues). Returns false when it was already ignored.
+    /// Forget an output device that is not plugged in: take it out of the
+    /// fallback order, and out of any channel or profile that names it, so it
+    /// stops being offered anywhere.
+    ///
+    /// # Why this exists
+    ///
+    /// Lanes remembers every output device it has seen, so a DAC that is
+    /// switched off tonight is still first tomorrow (see
+    /// [`crate::routing::maintain`]). The cost is that a device seen once -
+    /// the audio output of a monitor or TV connected for an afternoon - is then
+    /// offered as "unplugged" in every picker for good. This is how the user
+    /// says "I will not use that again".
+    ///
+    /// **Only an unplugged device can be forgotten**: one that is plugged in
+    /// would be added straight back by the next device check. Disabling keeps a
+    /// present device out of fallback. A forgotten device that comes back later
+    /// is simply new again, and joins the bottom of the list.
+    ///
+    /// A channel or profile that pointed at it goes back to the system
+    /// default. Returns the names of the channels that did, so the reply can
+    /// say so.
+    pub fn forget_device(&mut self, device_id: &str, present: bool) -> Result<Vec<String>, Refusal> {
+        if present {
+            return Err(Refusal::Invalid(
+                "that device is plugged in, so Lanes would add it straight back - \
+                 disable it to keep it out of fallback instead"
+                    .into(),
+            ));
+        }
+
+        let in_list = self.device_priority.iter().any(|e| e.id == device_id);
+        let named = |d: &Option<crate::config::DeviceRef>| d.as_ref().is_some_and(|d| d.id == device_id);
+        let in_channel = self.channels.iter().any(|c| named(&c.device));
+        let in_profile = self.profiles.iter().any(|p| p.channels.iter().any(|c| named(&c.device)));
+        if !in_list && !in_channel && !in_profile {
+            return Err(Refusal::NotFound(format!("Lanes has no record of device '{device_id}'")));
+        }
+
+        self.device_priority.retain(|e| e.id != device_id);
+
+        let mut cleared = Vec::new();
+        for channel in &mut self.channels {
+            if named(&channel.device) {
+                channel.device = None;
+                cleared.push(channel.name.clone());
+            }
+        }
+        for profile in &mut self.profiles {
+            for channel in &mut profile.channels {
+                if named(&channel.device) {
+                    channel.device = None;
+                }
+            }
+        }
+
+        Ok(cleared)
+    }
+
     pub fn ignore(&mut self, executable: &str) -> bool {
         let executable = executable.trim();
         if executable.is_empty()
@@ -301,6 +359,49 @@ mod tests {
             trim: None,
         });
         config
+    }
+
+    fn device(id: &str, name: &str) -> crate::config::DeviceRef {
+        crate::config::DeviceRef { id: id.into(), name: name.into() }
+    }
+
+    fn entry(id: &str) -> crate::config::PriorityEntry {
+        crate::config::PriorityEntry { id: id.into(), name: format!("Device {id}"), enabled: true }
+    }
+
+    #[test]
+    fn a_forgotten_device_is_gone_from_everywhere_that_named_it() {
+        let mut config = Config::default();
+        config.device_priority = vec![entry("headset"), entry("monitor"), entry("speakers")];
+        config.channel_mut("media").unwrap().device = Some(device("monitor", "Monitor"));
+        config.profiles.push(crate::profiles::Profile {
+            name: "Films".into(),
+            channels: vec![crate::profiles::ProfileChannel {
+                id: "media".into(),
+                volume: 0.5,
+                muted: false,
+                device: Some(device("monitor", "Monitor")),
+            }],
+            chat_mix: None,
+        });
+
+        let cleared = config.forget_device("monitor", false).unwrap();
+
+        assert_eq!(cleared, vec!["Media".to_string()]);
+        let ids: Vec<_> = config.device_priority.iter().map(|e| e.id.as_str()).collect();
+        assert_eq!(ids, ["headset", "speakers"], "the others keep their order");
+        assert_eq!(config.channel("media").unwrap().device, None);
+        assert_eq!(config.profiles[0].channels[0].device, None);
+    }
+
+    #[test]
+    fn a_plugged_in_or_unknown_device_cannot_be_forgotten() {
+        let mut config = Config::default();
+        config.device_priority = vec![entry("headset")];
+
+        assert!(matches!(config.forget_device("headset", true), Err(Refusal::Invalid(_))));
+        assert!(matches!(config.forget_device("nothing", false), Err(Refusal::NotFound(_))));
+        assert_eq!(config.device_priority.len(), 1, "a refusal changes nothing");
     }
 
     #[test]

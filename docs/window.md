@@ -59,7 +59,7 @@ Two rules that are easy to break:
 | `Controls/ChatMixSlider.cs` | The Game/Chat balance. |
 | `Controls/AppChip.cs`, `AppIcons.cs` | An application: its icon, name, playing state, right-click menu, Ctrl multi-select, drag. |
 | `Controls/PoolPanel.cs` | "To be routed". |
-| `Controls/DevicePanel.cs`, `DeviceButton.cs` | The global fallback order, and a channel's device picker. |
+| `Controls/DevicePanel.cs`, `DeviceButton.cs` | The global fallback order (with Disable, and Forget for unplugged devices), and a channel's device picker. |
 | `Controls/ProfileButton.cs` | Switch, save and delete profiles. |
 | `Controls/PopupMenu.cs`, `ChoiceButton.cs`, `Toggle.cs`, `KeyCapture.cs`, `Icons.cs`, `Tree.cs` | Small shared pieces. `KeyCapture` records a hotkey by being pressed, holding a low-level keyboard hook only while it is listening. |
 

@@ -14,8 +14,8 @@ namespace Lanes.Ui.Controls;
 /// <remarks>
 /// <para>
 /// <b>Collapsed to a rail by default, and it never opens itself.</b> That is a
-/// standing rule for this window — the user's words were "everything should be
-/// hidden or condensed unless manually opened". A pool that expanded whenever
+/// standing rule for this window: everything is condensed unless the user
+/// opens it. A pool that expanded whenever
 /// something new arrived would be delightful once and irritating thereafter.
 /// </para>
 /// <para>

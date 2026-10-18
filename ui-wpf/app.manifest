@@ -13,7 +13,7 @@
     asInvoker is deliberate and permanent. Nothing in Lanes asks for
     elevation.
   -->
-  <assemblyIdentity version="1.0.0.0" name="Lanes.Window"/>
+  <assemblyIdentity version="1.0.1.0" name="Lanes.Window"/>
 
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>

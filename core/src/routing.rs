@@ -120,13 +120,13 @@ pub fn choose(channel: &Channel, priority: &[PriorityEntry], active: &[Device]) 
 /// Returns true when it changed anything, so the caller knows to save.
 ///
 /// - **An output device seen for the first time is added at the bottom of the
-///   enabled entries, enabled** — the user's words were "placed to the bottom
-///   of the list but not disabled by default", and the disabled entries are
-///   pinned below everything, so the bottom of the usable list is where it
-///   goes.
+///   enabled entries, enabled**: new devices are usable straight away but never
+///   outrank the ones already chosen, and the disabled entries are pinned below
+///   everything, so the bottom of the usable list is where it goes.
 /// - **A present device whose name has changed has its name refreshed**, so an
 ///   unplugged device is later shown by the name it last had.
-/// - **Nothing is ever removed.** An unplugged device keeps its place.
+/// - **Nothing is removed here.** An unplugged device keeps its place; only
+///   the user removes one, with `Config::forget_device`.
 /// - The very first time, when the list is empty, the current system default
 ///   goes first. Any order is a guess at that point; that one is the guess
 ///   Windows has already made.

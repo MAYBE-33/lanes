@@ -1136,6 +1136,33 @@ fn handle(
             commit(config, id, "api:set_device_priority")
         }
 
+        Command::ForgetDevice { device_id } => {
+            let present = match winaudio::devices::list_all() {
+                Ok(devices) => devices.iter().any(|d| d.id == device_id),
+                Err(e) => return Reply::err(id, ErrorCode::AudioError, e.to_string()),
+            };
+            let name = config
+                .device_priority
+                .iter()
+                .find(|e| e.id == device_id)
+                .map(|e| e.name.clone())
+                .unwrap_or_else(|| device_id.clone());
+
+            match config.forget_device(&device_id, present) {
+                Ok(cleared) => {
+                    crate::audit::change(&name, "forgotten", Some("remembered".into()), None, "api:forget_device");
+                    for channel in &cleared {
+                        crate::audit::change(channel, "device", Some(name.clone()), None, "api:forget_device");
+                    }
+                    // A full apply: a channel that named it now follows the
+                    // default, which can be a different device from the
+                    // fallback it was on.
+                    commit(config, id, "api:forget_device")
+                }
+                Err(refusal) => manage_refused(id, refusal),
+            }
+        }
+
         Command::CycleChannelDevice { channel } => {
             let key = channel_or_404!(&channel);
 

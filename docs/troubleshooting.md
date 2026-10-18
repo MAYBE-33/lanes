@@ -42,6 +42,30 @@ whether or not any application needed moving:
 Select-String devices-changed "$env:LOCALAPPDATA\Lanes\logs\audit-*.jsonl"
 ```
 
+## A device I do not use is listed as "unplugged"
+
+Lanes remembers every output device it has ever seen, so a device that is off
+tonight keeps its place for tomorrow. That includes ones that were only there
+briefly. The commonest is a **monitor or TV's audio output**: plugging a display
+in over HDMI or DisplayPort (or through an adapter) makes Windows offer its
+speakers for as long as it is connected - and often makes it the default output
+for that time. They show up with names like "NVIDIA High Definition Audio",
+"AMD High Definition Audio Device" or the adapter's chip.
+
+Windows' own sound list only shows devices that are connected right now, which
+is why they appear in Lanes and not there.
+
+To remove one, open **Audio devices** and click **Forget** beside it, then again
+to confirm. It goes from the list and from every device picker. If you connect
+that display again later, it reappears as a new device - **Disable** it then if
+you never want audio sent to it.
+
+The audit log records when it was seen:
+
+```powershell
+Select-String "High Definition Audio" "$env:LOCALAPPDATA\Lanes\logs\audit-*.jsonl"
+```
+
 ## My audio is coming out of the wrong device
 
 Put everything back as it was before Lanes:

@@ -56,6 +56,9 @@ public sealed class DevicePanel : Border
     /// <summary>The whole order, as the user wants it: ids with enabled flags.</summary>
     public event Action<IReadOnlyList<(string Id, bool Enabled)>>? PriorityChanged;
 
+    /// <summary>The user confirmed forgetting this unplugged device.</summary>
+    public event Action<string>? ForgetRequested;
+
     public DevicePanel()
     {
         Background = Brushes.Transparent;
@@ -342,6 +345,7 @@ public sealed class DevicePanel : Border
         disable.MouseLeftButtonUp += (_, _) => Send(entry.Id, enabled: false, move: 0);
         DockPanel.SetDock(disable, Dock.Right);
         row.Children.Add(disable);
+        AddForget(row, entry);
 
         var down = ArrowButton(Icons.Direction.Down, "Lower priority", index < count - 1);
         down.MouseLeftButtonUp += (_, _) => Send(entry.Id, enabled: true, move: +1);
@@ -369,9 +373,53 @@ public sealed class DevicePanel : Border
         enable.MouseLeftButtonUp += (_, _) => Send(entry.Id, enabled: true, move: 0);
         DockPanel.SetDock(enable, Dock.Right);
         row.Children.Add(enable);
+        AddForget(row, entry);
 
         row.Children.Add(DeviceLabel(entry, dim: true));
         return Framed(row);
+    }
+
+    /// <summary>
+    /// "Forget", on an unplugged device only: two clicks, like deleting a profile.
+    /// </summary>
+    /// <remarks>
+    /// Lanes remembers every output it has ever seen, so a monitor's or TV's
+    /// audio output connected once is offered as "unplugged" in every picker
+    /// afterwards. This takes it out of the list, and out of any channel or
+    /// profile that names it. A device that is plugged in has no Forget: the
+    /// core would add it straight back, and Disable is what keeps it out of
+    /// fallback. The first click arms the button; moving the pointer away
+    /// disarms it, so a stray click cannot forget anything.
+    /// </remarks>
+    private void AddForget(DockPanel row, PriorityState entry)
+    {
+        if (entry.Present)
+        {
+            return;
+        }
+
+        var forget = TextButton("Forget", "Remove this unplugged device from Lanes");
+        var label = (TextBlock)forget.Child;
+        var armed = false;
+        forget.MouseLeftButtonUp += (_, _) =>
+        {
+            if (!armed)
+            {
+                armed = true;
+                label.Text = "Forget?";
+                label.Foreground = Res("Warn");
+                return;
+            }
+            ForgetRequested?.Invoke(entry.Id);
+        };
+        forget.MouseLeave += (_, _) =>
+        {
+            armed = false;
+            label.Text = "Forget";
+            label.Foreground = Res("TextFaint");
+        };
+        DockPanel.SetDock(forget, Dock.Right);
+        row.Children.Add(forget);
     }
 
     private static UIElement DeviceLabel(PriorityState entry, bool dim)

@@ -417,6 +417,10 @@ public sealed class CoreClient : IAsyncDisposable
     public void SetChannelDevice(string channel, string? deviceId) =>
         Send(new() { ["command"] = "set_channel_device", ["channel"] = channel, ["device_id"] = deviceId });
 
+    /// <summary>Forget an unplugged output device everywhere Lanes remembers it.</summary>
+    public void ForgetDevice(string deviceId) =>
+        Send(new() { ["command"] = "forget_device", ["device_id"] = deviceId });
+
     /// <summary>Replace the global device fallback order.</summary>
     public void SetDevicePriority(IReadOnlyList<(string Id, bool Enabled)> entries) =>
         Send(new()

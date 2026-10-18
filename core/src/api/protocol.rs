@@ -97,6 +97,12 @@ pub enum Command {
         #[serde(default)]
         entries: Vec<PriorityInput>,
     },
+    /// Forget an unplugged output device: out of the fallback order, and out of
+    /// any channel or profile that names it. Refused for a device that is
+    /// plugged in, which would be added straight back - disable it instead.
+    ForgetDevice {
+        device_id: String,
+    },
     /// Step to the next available output device.
     ///
     /// Useful from a single button, where picking from a list is not possible.

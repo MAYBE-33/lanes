@@ -116,10 +116,9 @@ public sealed class Fader : FrameworkElement
     /// act on. Rising is therefore immediate and only the fall is eased.
     ///
     /// This is also what hides the gap between samples. Thirty a second is
-    /// plenty of information but it is not a smooth picture on its own, and the
-    /// previous ten a second read as a stutter — the user's words were "running
-    /// at 2 frames a second". Easing between them at the display's own rate is
-    /// what turns samples into motion.
+    /// plenty of information but it is not a smooth picture on its own: drawn
+    /// as they arrive, samples read as a stutter. Easing between them at the
+    /// display's own rate is what turns samples into motion.
     /// </remarks>
     private const double DecaySeconds = 0.18;
 

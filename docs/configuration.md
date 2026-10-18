@@ -137,8 +137,15 @@ whenever a channel is on a stand-in.
 - **`enabled: false`** excludes a device from fallback, and it is always kept at
   the bottom. A channel pointed at a disabled device *directly* still uses it.
 - **Lanes maintains the list.** Every output device it sees is added at the
-  bottom of the enabled entries, enabled. Nothing is removed: an unplugged
-  device keeps its place.
+  bottom of the enabled entries, enabled. Nothing is removed on its own: an
+  unplugged device keeps its place, so a DAC that is switched off tonight is
+  still first tomorrow.
+- **Forget** removes an unplugged device you will not use again - the audio
+  output of a monitor or TV connected once, say - from the list and from any
+  channel or profile that named it. It is in the window under **Audio
+  devices**, beside each unplugged device, or `forget_device`. A device that is
+  plugged in cannot be forgotten, because Lanes would add it straight back;
+  **Disable** keeps it out of fallback instead.
 - **`device` is never rewritten while it is absent.** Plug it back in and the
   channel returns to it.
 - **A channel with `device: null` is never "on a fallback".** It asked for the

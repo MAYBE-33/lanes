@@ -23,8 +23,8 @@
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Lanes.Window</AssemblyName>
-    <Version>1.0.0</Version>
-    <!-- Keep the product version exactly "1.0.0": without this, a build from a
+    <Version>1.0.1</Version>
+    <!-- Keep the product version exactly as set above: without this, a build from a
          git checkout appends "+<commit>", and signed releases need the same
          version attributes on every file. -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>

@@ -99,6 +99,7 @@ On failure:
 | `set_channel_mute` | `channel`, `muted` | |
 | `toggle_channel_mute` | `channel` | |
 | `set_device_priority` | `entries` | The global fallback order: `[{ "id", "enabled" }]`, in priority order. See below |
+| `forget_device` | `device_id` | Forget an **unplugged** output: out of the fallback order and out of any channel or profile that names it (those go back to the system default). `bad_request` for a device that is plugged in, `not_found` for one Lanes has no record of |
 | `set_channel_device` | `channel`, `device_id` (or `null`) | `null` returns it to the system default. **For `master` it makes that device Windows' default output**; `null` does nothing, since Master already is the default |
 | `cycle_channel_device` | `channel` | Steps through outputs, including "system default" as a position. Refused for the Mic channel, as `set_channel_device` is |
 | `assign_app` | `executable`, `channel` | Creates a persistent rule |
@@ -409,7 +410,10 @@ It is deliberately forgiving:
 
 The core maintains the list itself: every output device present at startup, or
 plugged in later, is added at the bottom of the enabled entries, and nothing is
-ever removed - an unplugged device keeps its place and reports `present: false`.
+removed on its own - an unplugged device keeps its place and reports
+`present: false`. `forget_device` is how a user removes one they will not use
+again, such as a monitor's audio output seen once. A forgotten device that is
+plugged in later is simply new again.
 
 ### What a client can rely on
 

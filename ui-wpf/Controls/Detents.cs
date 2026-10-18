@@ -28,9 +28,8 @@ internal static class Detents
     /// How close a release has to be, as a fraction of travel, to be pulled in.
     /// </summary>
     /// <remarks>
-    /// The user's words about the faders: the slider should naturally want to
-    /// fall to 50% if the drag is released at 51%, but not be so magnetic that
-    /// 55% cannot be set. Four percent does that - 51 and 53 snap, 55 does not
+    /// The slider should naturally want to fall to 50% if the drag is released
+    /// at 51%, but not be so magnetic that 55% cannot be set. Four percent does that - 51 and 53 snap, 55 does not
     /// - and anything much larger starts taking the control away.
     ///
     /// It is only half the rule. See <see cref="DwellToCommit"/>.

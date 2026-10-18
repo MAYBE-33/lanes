@@ -279,6 +279,7 @@ public partial class MainWindow : Window, IAppCommands, IChannelCommands
         _profiles.DeleteRequested += name => _client.DeleteProfile(name);
 
         _devicePanel.PriorityChanged += entries => _client.SetDevicePriority(entries);
+        _devicePanel.ForgetRequested += deviceId => _client.ForgetDevice(deviceId);
 
         // Opening either side panel widens the left column, which changes how
         // narrow the mixer can go.
